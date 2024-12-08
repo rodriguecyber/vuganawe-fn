@@ -1,16 +1,17 @@
 "use client";
-import { Sidebar } from "@/components/instructor/sidebar";
+
+import { Sidebar } from "@/components/student/sidebar";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { redirect } from "next/navigation";
 
-export default function InstructorLayout({
+export default function StudentLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const { user, isLoading } = useAuth();
 
-  if (!isLoading && (!user || user.role !== "instructor")) {
+  if (!isLoading && (!user || user.role !== "student")) {
     redirect("/login");
   }
 
