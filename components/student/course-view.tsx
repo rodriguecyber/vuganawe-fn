@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -11,72 +11,83 @@ import {
 } from "@/components/ui/accordion";
 import { CheckCircle2, PlayCircle, FileText, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-// Mock data - replace with actual API calls
-const courseData = {
-  id: "1",
-  title: "Web Development Fundamentals",
-  progress: 65,
-  modules: [
-    {
-      id: "m1",
-      title: "Introduction to HTML",
-      completed: true,
-      lessons: [
-        {
-          id: "l1",
-          title: "HTML Basics",
-          duration: "15 mins",
-          completed: true,
-          type: "video",
-        },
-        {
-          id: "l2",
-          title: "HTML Forms",
-          duration: "20 mins",
-          completed: true,
-          type: "video",
-        },
-      ],
-    },
-    {
-      id: "m2",
-      title: "CSS Fundamentals",
-      completed: false,
-      lessons: [
-        {
-          id: "l3",
-          title: "CSS Selectors",
-          duration: "25 mins",
-          completed: false,
-          type: "video",
-        },
-        {
-          id: "l4",
-          title: "CSS Box Model",
-          duration: "20 mins",
-          completed: false,
-          type: "video",
-        },
-      ],
-    },
-  ],
-};
+import { useCourses } from "@/lib/hooks/use-courses";
+import { Card } from "@/components/ui/card";
 
 export function CourseView({ courseId }: { courseId: string }) {
   const [activeLesson, setActiveLesson] = useState<string | null>(null);
+  const {
+    currentCourse,
+    modules,
+    lessons,
+    resources,
+    progress,
+    lessonProgress,
+    loadCourse,
+    loadModules,
+    loadLessons,
+    loadResources,
+    updateProgress,
+    isLoading,
+  } = useCourses();
+
+  useEffect(() => {
+    loadCourse(courseId);
+    loadModules(courseId);
+  }, [courseId]);
+
+  useEffect(() => {
+    if (modules.length > 0) {
+      modules.forEach((module) => {
+        loadLessons(module.id);
+      });
+    }
+  }, [modules]);
+
+  useEffect(() => {
+    if (activeLesson) {
+      loadResources(activeLesson);
+    }
+  }, [activeLesson]);
+
+  if (isLoading || !currentCourse) {
+    return (
+      <div className="space-y-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 w-64 bg-gray-200 rounded" />
+          <div className="h-4 w-96 bg-gray-100 rounded" />
+        </div>
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <div className="aspect-video bg-gray-200 rounded-lg animate-pulse" />
+          </div>
+          <Card className="p-6">
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="w-full h-12 bg-gray-100 animate-pulse rounded-md" />
+              ))}
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  const courseProgress = progress[courseId];
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">{courseData.title}</h1>
-        <div className="mt-4 space-y-2">
-          <div className="flex justify-between text-sm">
-            <span>Overall Progress</span>
-            <span>{courseData.progress}%</span>
+        <h1 className="text-3xl font-bold">{currentCourse.title}</h1>
+        {courseProgress && (
+          <div className="mt-4 space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Overall Progress</span>
+              <span>{courseProgress.progress}%</span>
+            </div>
+            <Progress value={courseProgress.progress} />
           </div>
-          <Progress value={courseData.progress} />
-        </div>
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -86,7 +97,9 @@ export function CourseView({ courseId }: { courseId: string }) {
               <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
                 <PlayCircle className="h-16 w-16 text-white opacity-50" />
               </div>
-              <h2 className="text-xl font-semibold">Lesson Title</h2>
+              <h2 className="text-xl font-semibold">
+                {modules.flatMap(m => lessons[m.id] || []).find(l => l.id === activeLesson)?.title}
+              </h2>
               <div className="prose max-w-none">
                 <p>Lesson content goes here...</p>
               </div>
@@ -101,64 +114,75 @@ export function CourseView({ courseId }: { courseId: string }) {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Course Content</h2>
           <Accordion type="single" collapsible className="w-full">
-            {courseData.modules.map((module) => (
+            {modules.map((module) => (
               <AccordionItem key={module.id} value={module.id}>
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center gap-2">
-                    {module.completed && (
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    )}
                     <span>{module.title}</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-2 pt-2">
-                    {module.lessons.map((lesson) => (
-                      <button
-                        key={lesson.id}
-                        onClick={() => setActiveLesson(lesson.id)}
-                        className={cn(
-                          "flex items-center gap-3 w-full rounded-lg p-2 text-sm transition-colors hover:bg-gray-100",
-                          activeLesson === lesson.id && "bg-gray-100"
-                        )}
-                      >
-                        {lesson.type === "video" ? (
-                          <PlayCircle className="h-4 w-4" />
-                        ) : (
-                          <FileText className="h-4 w-4" />
-                        )}
-                        <div className="flex-1 text-left">
-                          <div>{lesson.title}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {lesson.duration}
+                    {(lessons[module.id] || []).map((lesson) => {
+                      const progress = lessonProgress[lesson.id];
+                      return (
+                        <button
+                          key={lesson.id}
+                          onClick={() => {
+                            setActiveLesson(lesson.id);
+                            if (!progress?.is_completed) {
+                              updateProgress(lesson.id, {
+                                is_completed: true,
+                                last_accessed: new Date(),
+                              });
+                            }
+                          }}
+                          className={cn(
+                            "flex items-center gap-3 w-full rounded-lg p-2 text-sm transition-colors hover:bg-gray-100",
+                            activeLesson === lesson.id && "bg-gray-100"
+                          )}
+                        >
+                          {lesson.content_type === "video" ? (
+                            <PlayCircle className="h-4 w-4" />
+                          ) : (
+                            <FileText className="h-4 w-4" />
+                          )}
+                          <div className="flex-1 text-left">
+                            <div>{lesson.title}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {lesson.duration_minutes} mins
+                            </div>
                           </div>
-                        </div>
-                        {lesson.completed && (
-                          <CheckCircle2 className="h-4 w-4 text-green-500" />
-                        )}
-                      </button>
-                    ))}
+                          {progress?.is_completed && (
+                            <CheckCircle2 className="h-4 w-4 text-green-500" />
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
 
-          <div className="space-y-4">
-            <h3 className="font-semibold">Resources</h3>
-            <div className="space-y-2">
-              <Button variant="outline" className="w-full justify-start">
-                <FileText className="mr-2 h-4 w-4" />
-                Course Slides
-                <Download className="ml-auto h-4 w-4" />
-              </Button>
-              <Button variant="outline" className="w-full justify-start">
-                <FileText className="mr-2 h-4 w-4" />
-                Exercise Files
-                <Download className="ml-auto h-4 w-4" />
-              </Button>
+          {activeLesson && resources[activeLesson] && (
+            <div className="space-y-4">
+              <h3 className="font-semibold">Resources</h3>
+              <div className="space-y-2">
+                {resources[activeLesson].map((resource) => (
+                  <Button
+                    key={resource.id}
+                    variant="outline"
+                    className="w-full justify-start"
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    {resource.title}
+                    <Download className="ml-auto h-4 w-4" />
+                  </Button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

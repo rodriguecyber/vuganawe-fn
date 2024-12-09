@@ -1,4 +1,5 @@
 "use client";
+
 import { Sidebar } from "@/components/instructor/sidebar";
 import { useAuth } from "@/lib/hooks/use-auth";
 import { redirect } from "next/navigation";

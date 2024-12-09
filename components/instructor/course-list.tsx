@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -12,20 +13,34 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Edit, Plus } from "lucide-react";
 import Link from "next/link";
-
-const courses = [
-  {
-    id: "1",
-    title: "Introduction to Web Development",
-    status: "published",
-    students: 156,
-    modules: 8,
-    price: 99.99,
-  },
-  // Add more sample courses as needed
-];
+import { useCourses } from "@/lib/hooks/use-courses";
+import { Card } from "@/components/ui/card";
 
 export function CourseList() {
+  const { courses, loadCourses, isLoading } = useCourses();
+
+  useEffect(() => {
+    loadCourses();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold">My Courses</h1>
+          <div className="w-32 h-10 bg-gray-200 animate-pulse rounded-md" />
+        </div>
+        <Card className="p-6">
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="w-full h-12 bg-gray-100 animate-pulse rounded-md" />
+            ))}
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -62,8 +77,8 @@ export function CourseList() {
                     {course.status}
                   </Badge>
                 </TableCell>
-                <TableCell>{course.students}</TableCell>
-                <TableCell>{course.modules}</TableCell>
+                <TableCell>0</TableCell>
+                <TableCell>0</TableCell>
                 <TableCell>${course.price}</TableCell>
                 <TableCell>
                   <Link href={`/instructor/courses/${course.id}`}>
