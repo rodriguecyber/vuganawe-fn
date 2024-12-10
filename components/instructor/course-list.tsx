@@ -66,7 +66,7 @@ export function CourseList() {
           </TableHeader>
           <TableBody>
             {courses.map((course) => (
-              <TableRow key={course.id}>
+              <TableRow key={course._id}>
                 <TableCell className="font-medium">{course.title}</TableCell>
                 <TableCell>
                   <Badge
@@ -81,7 +81,7 @@ export function CourseList() {
                 <TableCell>0</TableCell>
                 <TableCell>${course.price}</TableCell>
                 <TableCell>
-                  <Link href={`/instructor/courses/${course.id}`}>
+                  <Link href={`/instructor/courses/${course._id}`}>
                     <Button variant="ghost" size="sm">
                       <Edit className="h-4 w-4" />
                     </Button>

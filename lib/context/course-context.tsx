@@ -121,10 +121,10 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
       if (user) {
         await Promise.all(
           courses.map(async (course) => {
-            const progress = await progressApi.fetchCourseProgress(user.id, course.id);
+            const progress = await progressApi.fetchCourseProgress(user.id, course._id);
             dispatch({
               type: 'SET_COURSE_PROGRESS',
-              payload: { courseId: course.id, progress },
+              payload: { courseId: course._id, progress },
             });
           })
         );
@@ -240,11 +240,11 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
       if (state.currentCourse) {
         const courseProgress = await progressApi.fetchCourseProgress(
           user.id,
-          state.currentCourse.id
+          state.currentCourse._id
         );
         dispatch({
           type: 'SET_COURSE_PROGRESS',
-          payload: { courseId: state.currentCourse.id, progress: courseProgress },
+          payload: { courseId: state.currentCourse._id, progress: courseProgress },
         });
       }
     } catch (error) {
