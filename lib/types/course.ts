@@ -15,9 +15,10 @@ export interface Course {
 }
 
 export interface Module {
-  id: string;
+  _id: string;
   course_id: string;
   title: string;
+  lessons:Lesson[]
   description: string;
   order_index: number;
   is_published: boolean;
@@ -25,7 +26,7 @@ export interface Module {
 }
 
 export interface Lesson {
-  id: string;
+  _id: string;
   module_id: string;
   title: string;
   content: string;

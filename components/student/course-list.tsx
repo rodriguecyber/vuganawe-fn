@@ -44,10 +44,10 @@ export function CourseList() {
       <h1 className="text-3xl font-bold">My Courses</h1>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {courses.map((course) => {
-          const courseProgress = progress[course.id] || { progress: 0, completedLessons: 0, totalLessons: 0 };
+          const courseProgress = progress[course._id] || { progress: 0, completedLessons: 0, totalLessons: 0 };
           
           return (
-            <Card key={course.id} className="overflow-hidden">
+            <Card key={course._id} className="overflow-hidden">
               <img
                 src={course.thumbnail || "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=500&h=300&fit=crop"}
                 alt={course.title}
@@ -67,7 +67,7 @@ export function CourseList() {
                 <div className="text-sm text-muted-foreground">
                   {courseProgress.completedLessons} of {courseProgress.totalLessons} modules completed
                 </div>
-                <Link href={`/student/courses/${course.id}`}>
+                <Link href={`/student/courses/${course._id}`}>
                   <Button className="w-full">
                     <PlayCircle className="mr-2 h-4 w-4" />
                     Continue Learning

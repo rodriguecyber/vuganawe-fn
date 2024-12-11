@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -9,23 +9,24 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { CheckCircle2, PlayCircle, FileText, Download } from "lucide-react";
+import { CheckCircle2, PlayCircle, FileText, Download, PauseCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCourses } from "@/lib/hooks/use-courses";
 import { Card } from "@/components/ui/card";
 
 export function CourseView({ courseId }: { courseId: string }) {
   const [activeLesson, setActiveLesson] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
   const {
     currentCourse,
     modules,
-    lessons,
     resources,
     progress,
     lessonProgress,
     loadCourse,
     loadModules,
-    loadLessons,
     loadResources,
     updateProgress,
     isLoading,
@@ -39,7 +40,7 @@ export function CourseView({ courseId }: { courseId: string }) {
   useEffect(() => {
     if (modules.length > 0) {
       modules.forEach((module) => {
-        loadLessons(module.id);
+        loadResources(module._id); // Just load resources as needed
       });
     }
   }, [modules]);
@@ -49,6 +50,46 @@ export function CourseView({ courseId }: { courseId: string }) {
       loadResources(activeLesson);
     }
   }, [activeLesson]);
+
+  const handlePlayPause = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const renderVideoPlayer = (videoUrl: string) => {
+    // Check if it's a direct video URL (e.g., .mp4)
+    if (videoUrl.endsWith(".mp4")) {
+      return (
+        <video
+          ref={videoRef}
+          controls
+          className="w-full h-full object-cover"
+          src={videoUrl}
+          onPlay={() => setIsPlaying(true)}
+          onPause={() => setIsPlaying(false)}
+        >
+          Your browser does not support the video tag.
+        </video>
+      );
+    }
+
+    // Otherwise, treat the URL as an external embed (like from Pexels, YouTube)
+    return (
+      <iframe
+        className="w-full h-full rounded-lg"
+        src={videoUrl}
+        frameBorder="0"
+        allow="autoplay; fullscreen"
+        allowFullScreen
+      />
+    );
+  };
 
   if (isLoading || !currentCourse) {
     return (
@@ -94,14 +135,43 @@ export function CourseView({ courseId }: { courseId: string }) {
         <div className="lg:col-span-2">
           {activeLesson ? (
             <div className="space-y-4">
-              <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
-                <PlayCircle className="h-16 w-16 text-white opacity-50" />
+              <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center relative">
+                {modules
+                  .flatMap((module) => module.lessons)
+                  .find((lesson) => lesson._id === activeLesson)?.video_url ? (
+                  renderVideoPlayer(
+                    modules
+                      .flatMap((module) => module.lessons)
+                      .find((lesson) => lesson._id === activeLesson)?.video_url || ""
+                  )
+                ) : (
+                  <PlayCircle className="h-16 w-16 text-white opacity-50" />
+                )}
+                {/* Play/Pause Button */}
+                {modules
+                  .flatMap((module) => module.lessons)
+                  .find((lesson) => lesson._id === activeLesson)?.video_url && (
+                  <button
+                    onClick={handlePlayPause}
+                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 text-white opacity-75 hover:opacity-100 transition-opacity"
+                  >
+                    {isPlaying ? (
+                      <PauseCircle className="h-16 w-16" />
+                    ) : (
+                      <PlayCircle className="h-16 w-16" />
+                    )}
+                  </button>
+                )}
               </div>
               <h2 className="text-xl font-semibold">
-                {modules.flatMap(m => lessons[m.id] || []).find(l => l.id === activeLesson)?.title}
+                {modules
+                  .flatMap((module) => module.lessons)
+                  .find((lesson) => lesson._id === activeLesson)?.title}
               </h2>
               <div className="prose max-w-none">
-                <p>Lesson content goes here...</p>
+                {modules
+                  .flatMap((module) => module.lessons)
+                  .find((lesson) => lesson._id === activeLesson)?.content}
               </div>
             </div>
           ) : (
@@ -115,7 +185,7 @@ export function CourseView({ courseId }: { courseId: string }) {
           <h2 className="text-xl font-semibold">Course Content</h2>
           <Accordion type="single" collapsible className="w-full">
             {modules.map((module) => (
-              <AccordionItem key={module.id} value={module.id}>
+              <AccordionItem key={module._id} value={module._id}>
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center gap-2">
                     <span>{module.title}</span>
@@ -123,15 +193,15 @@ export function CourseView({ courseId }: { courseId: string }) {
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-2 pt-2">
-                    {(lessons[module.id] || []).map((lesson) => {
-                      const progress = lessonProgress[lesson.id];
+                    {module.lessons.map((lesson) => {
+                      const progress = lessonProgress[lesson._id];
                       return (
                         <button
-                          key={lesson.id}
+                          key={lesson._id}
                           onClick={() => {
-                            setActiveLesson(lesson.id);
+                            setActiveLesson(lesson._id);
                             if (!progress?.is_completed) {
-                              updateProgress(lesson.id, {
+                              updateProgress(lesson._id, {
                                 is_completed: true,
                                 last_accessed: new Date(),
                               });
@@ -139,7 +209,7 @@ export function CourseView({ courseId }: { courseId: string }) {
                           }}
                           className={cn(
                             "flex items-center gap-3 w-full rounded-lg p-2 text-sm transition-colors hover:bg-gray-100",
-                            activeLesson === lesson.id && "bg-gray-100"
+                            activeLesson === lesson._id && "bg-gray-100"
                           )}
                         >
                           {lesson.content_type === "video" ? (

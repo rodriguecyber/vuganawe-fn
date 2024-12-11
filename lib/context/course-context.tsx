@@ -121,7 +121,7 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
       if (user) {
         await Promise.all(
           courses.map(async (course) => {
-            const progress = await progressApi.fetchCourseProgress(user.id, course._id);
+            const progress = await progressApi.fetchCourseProgress(user._id, course._id);
             dispatch({
               type: 'SET_COURSE_PROGRESS',
               payload: { courseId: course._id, progress },
@@ -147,7 +147,7 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
       dispatch({ type: 'SET_CURRENT_COURSE', payload: course });
 
       if (user) {
-        const progress = await progressApi.fetchCourseProgress(user.id, courseId);
+        const progress = await progressApi.fetchCourseProgress(user._id, courseId);
         dispatch({
           type: 'SET_COURSE_PROGRESS',
           payload: { courseId, progress },
@@ -189,12 +189,12 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
       if (user) {
         await Promise.all(
           lessons.map(async (lesson) => {
-            const progress = await progressApi.fetchUserProgress(user.id);
-            const lessonProgress = progress.find(p => p.lesson_id === lesson.id);
+            const progress = await progressApi.fetchUserProgress(user._id);
+            const lessonProgress = progress.find(p => p.lesson_id === lesson._id);
             if (lessonProgress) {
               dispatch({
                 type: 'SET_LESSON_PROGRESS',
-                payload: { lessonId: lesson.id, progress: lessonProgress },
+                payload: { lessonId: lesson._id, progress: lessonProgress },
               });
             }
           })
@@ -230,7 +230,7 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
   const updateProgress = async (lessonId: string, data: Partial<UserProgress>) => {
     try {
       if (!user) throw new Error('User not authenticated');
-      const progress = await progressApi.updateLessonProgress(user.id, lessonId, data);
+      const progress = await progressApi.updateLessonProgress(user._id, lessonId, data);
       dispatch({
         type: 'SET_LESSON_PROGRESS',
         payload: { lessonId, progress },
@@ -239,7 +239,7 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
       // Refresh course progress after updating lesson progress
       if (state.currentCourse) {
         const courseProgress = await progressApi.fetchCourseProgress(
-          user.id,
+          user._id,
           state.currentCourse._id
         );
         dispatch({
