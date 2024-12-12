@@ -2,8 +2,9 @@
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { AuthState, User, LoginCredentials, RegisterData } from '@/lib/types/auth';
-import { useToast } from '@/hooks/use-toast';
-
+import { toast, ToastContainer } from 'react-toastify';  // Import Toastify's toast function
+import Router, { useRouter } from 'next/router';
+import { redirect } from 'next/navigation';
 interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
@@ -50,10 +51,9 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
-  const { toast } = useToast();
+ 
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await fetch("http://localhost:5000/api/auth/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      
+
       if (!response.ok) throw new Error('Authentication failed');
 
       const data = await response.json();
@@ -80,10 +80,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       localStorage.removeItem('token');
       dispatch({ type: 'LOGOUT' });
+      toast.error(error instanceof Error ? error.message : 'Authentication failed');
     }
   };
 
   const login = async (credentials: LoginCredentials) => {
+
     try {
       const response = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
@@ -93,23 +95,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message);
+        throw new Error(error.message || 'Login failed');
       }
 
       const data = await response.json();
       localStorage.setItem('token', data.token);
       dispatch({ type: 'SET_USER', payload: data.user });
-      toast({
-        title: "Success",
-        description: "Logged in successfully",
-      });
+      toast.success("Logged in successfully");
+      if (data.user.role === 'student') {
+        window.location.href='/student';  // Redirect to student page
+      } else if (data.user.role === 'instructor') {
+        window.location.href='/instructor';  // Redirect to instructor page
+      }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : 'Login failed',
-        variant: "destructive",
-      });
-      throw error;
+      toast.error(error instanceof Error ? error.message : 'Login failed');
     }
   };
 
@@ -123,30 +122,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message);
+        throw new Error(error.message || 'Registration failed');
       }
 
-      toast({
-        title: "Success",
-        description: "Registration successful. Please verify your email.",
-      });
+      toast.success("Registration successful. Please verify your email.");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : 'Registration failed',
-        variant: "destructive",
-      });
-      throw error;
+      toast.error(error instanceof Error ? error.message : 'Registration failed');
     }
   };
 
   const logout = () => {
     localStorage.removeItem('token');
     dispatch({ type: 'LOGOUT' });
-    toast({
-      title: "Success",
-      description: "Logged out successfully",
-    });
+    toast.success("Logged out successfully");
   };
 
   const forgotPassword = async (email: string) => {
@@ -162,20 +150,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message);
+        throw new Error(error.message || 'Failed to send reset email');
       }
 
-      toast({
-        title: "Success",
-        description: "Password reset email sent",
-      });
+      toast.success("Password reset email sent");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : 'Failed to send reset email',
-        variant: "destructive",
-      });
-      throw error;
+      toast.error(error instanceof Error ? error.message : 'Failed to send reset email');
     }
   };
 
@@ -192,35 +172,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message);
+        throw new Error(error.message || 'Password reset failed');
       }
 
-      toast({
-        title: "Success",
-        description: "Password reset successful",
-      });
+      toast.success("Password reset successful");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : 'Password reset failed',
-        variant: "destructive",
-      });
-      throw error;
+      toast.error(error instanceof Error ? error.message : 'Password reset failed');
     }
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        ...state,
-        login,
-        register,
-        logout,
-        forgotPassword,
-        resetPassword,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+    <>
+      <AuthContext.Provider
+        value={{
+          ...state,
+          login,
+          register,
+          logout,
+          forgotPassword,
+          resetPassword,
+        }}
+      >
+        {children}
+      </AuthContext.Provider>
+
+      {/* ToastContainer should be included in the root component */}
+      <ToastContainer />
+    </>
   );
 }

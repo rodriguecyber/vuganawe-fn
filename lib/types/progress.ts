@@ -9,9 +9,13 @@ export interface UserProgress {
 }
 
 export interface CourseProgress {
-  courseId: string;
+  user_id:string;
+  course_id:string;
   totalLessons: number;
   completedLessons: number;
-  progress: number;
   lastAccessed: Date;
+  enrolled_at: Date;
+  status: string
+  completion_date?: Date;
+  progress_percentage: number;
 }

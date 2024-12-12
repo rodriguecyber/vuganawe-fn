@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -18,15 +18,16 @@ export function CourseView({ courseId }: { courseId: string }) {
   const [activeLesson, setActiveLesson] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-
   const {
     currentCourse,
     modules,
+    lessons,
     resources,
     progress,
     lessonProgress,
     loadCourse,
     loadModules,
+    loadLessons,
     loadResources,
     updateProgress,
     isLoading,
@@ -40,7 +41,7 @@ export function CourseView({ courseId }: { courseId: string }) {
   useEffect(() => {
     if (modules.length > 0) {
       modules.forEach((module) => {
-        loadResources(module._id); // Just load resources as needed
+        loadLessons(module._id);
       });
     }
   }, [modules]);
@@ -115,7 +116,7 @@ export function CourseView({ courseId }: { courseId: string }) {
   }
 
   const courseProgress = progress[courseId];
-
+   
   return (
     <div className="space-y-6">
       <div>
@@ -124,9 +125,9 @@ export function CourseView({ courseId }: { courseId: string }) {
           <div className="mt-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span>Overall Progress</span>
-              <span>{courseProgress.progress}%</span>
+              <span>{courseProgress.progress_percentage}%</span>
             </div>
-            <Progress value={courseProgress.progress} />
+            <Progress value={courseProgress.progress_percentage} />
           </div>
         )}
       </div>
@@ -193,8 +194,10 @@ export function CourseView({ courseId }: { courseId: string }) {
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-2 pt-2">
-                    {module.lessons.map((lesson) => {
+                    {(lessons[module._id] || []).map((lesson) => {
                       const progress = lessonProgress[lesson._id];
+                    
+
                       return (
                         <button
                           key={lesson._id}
@@ -223,6 +226,8 @@ export function CourseView({ courseId }: { courseId: string }) {
                               {lesson.duration_minutes} mins
                             </div>
                           </div>
+
+                          {/* Check if lesson is completed */}
                           {progress?.is_completed && (
                             <CheckCircle2 className="h-4 w-4 text-green-500" />
                           )}
@@ -241,7 +246,7 @@ export function CourseView({ courseId }: { courseId: string }) {
               <div className="space-y-2">
                 {resources[activeLesson].map((resource) => (
                   <Button
-                    key={resource.id}
+                    key={resource._id}
                     variant="outline"
                     className="w-full justify-start"
                   >

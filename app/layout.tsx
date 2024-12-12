@@ -3,7 +3,9 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { AuthProvider } from '@/lib/context/auth-context';
 import { CourseProvider } from '@/lib/context/course-context';
-import { Toaster } from '@/components/ui/sonner';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';  // Import Toastify styles globally
+
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,7 +25,7 @@ export default function RootLayout({
         <AuthProvider>
           <CourseProvider>
             {children}
-            <Toaster />
+            <ToastContainer />
           </CourseProvider>
         </AuthProvider>
       </body>

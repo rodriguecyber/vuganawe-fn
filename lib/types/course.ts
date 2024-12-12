@@ -38,7 +38,7 @@ export interface Lesson {
 }
 
 export interface Resource {
-  id: string;
+  _id: string;
   lesson_id: string;
   title: string;
   file_url: string;

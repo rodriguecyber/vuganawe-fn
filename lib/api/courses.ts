@@ -21,7 +21,7 @@ export async function fetchModulesByCourseId(courseId: string): Promise<Module[]
 }
 
 export async function fetchLessonsByModuleId(moduleId: string): Promise<Lesson[]> {
-  const response = await fetch(`${API_URL}apicourses/modules/${moduleId}/lessons`);
+  const response = await fetch(`${API_URL}/api/courses/modules/${moduleId}/lessons`);
   if (!response.ok) throw new Error('Failed to fetch lessons');
   return response.json();
 }

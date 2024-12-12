@@ -44,7 +44,7 @@ export function CourseList() {
       <h1 className="text-3xl font-bold">My Courses</h1>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {courses.map((course) => {
-          const courseProgress = progress[course._id] || { progress: 0, completedLessons: 0, totalLessons: 0 };
+          const courseProgress = progress[course._id] || { progress_percentage: 0, completedLessons: 0, totalLessons: 0 };
           
           return (
             <Card key={course._id} className="overflow-hidden">
@@ -60,12 +60,12 @@ export function CourseList() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Progress</span>
-                    <span>{courseProgress.progress}%</span>
+                    <span>{courseProgress.progress_percentage}%</span>
                   </div>
-                  <Progress value={courseProgress.progress} />
+                  <Progress value={courseProgress.progress_percentage} />
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {courseProgress.completedLessons} of {courseProgress.totalLessons} modules completed
+                  {courseProgress.completedLessons} of {courseProgress.totalLessons} lessons completed
                 </div>
                 <Link href={`/student/courses/${course._id}`}>
                   <Button className="w-full">
