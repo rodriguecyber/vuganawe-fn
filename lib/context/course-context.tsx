@@ -25,6 +25,8 @@ interface CourseContextType extends CourseState {
   createCourse: (formData:FormData) => Promise<void>;
   loadCourse: (courseId: string) => Promise<void>;
   loadModules: (courseId: string) => Promise<void>;
+  createModule: (courseId: string,title:string,description:string,duration_hours:number) => Promise<void>;
+  createLesson: (moduleId: string, title: string, content: string, content_type: string, duration_minutes: number, video: File | null) => Promise<void>;
   loadLessons: (moduleId: string) => Promise<void>;
   loadResources: (lessonId: string) => Promise<void>;
   updateProgress: (lessonId: string, data: Partial<UserProgress>) => Promise<void>;
@@ -189,6 +191,49 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  
+  const createModule = async (courseId: string,title:string,description:string,duration_hours:number) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+       await courseApi.createModule(courseId,title,description,duration_hours);
+       const modules = await courseApi.fetchModulesByCourseId(courseId)
+      dispatch({ type: 'SET_MODULES', payload: modules });
+      toast({
+        title: "success",
+        description: 'module added',
+        variant: "default",
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to create module modules';
+      dispatch({ type: 'SET_ERROR', payload: message });
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
+  const createLesson = async (moduleId: string, title: string, content: string, content_type: string, duration_minutes: number, video: File | null) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+       await courseApi.createLesson(moduleId, title, content, content_type, duration_minutes, video);
+       const lessons = await courseApi.fetchLessonsByModuleId(moduleId)
+      dispatch({ type: 'SET_LESSONS', payload:{moduleId, lessons} });
+      toast({
+        title: "success",
+        description: 'lesson added',
+        variant: "default",
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to create module modules';
+      dispatch({ type: 'SET_ERROR', payload: message });
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
   const loadModules = async (courseId: string) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
@@ -204,7 +249,6 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
       });
     }
   };
-
   const loadLessons = async (moduleId: string) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
@@ -291,6 +335,8 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
         loadCourse,
         loadModules,
         createCourse,
+        createModule,
+        createLesson,
         loadLessons,
         loadResources,
         updateProgress,

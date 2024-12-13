@@ -52,16 +52,19 @@ export async function createCourse(formData: FormData) {
   const newModule = await response.json();
   return newModule;
 }
-export async function createModule(courseId: string, title: string, description: string) {
-  const response = await fetch("/api/modules/create", {
+export async function createModule(course_id: string, title: string, description: string, duration_hours:number) {
+  const response = await fetch(`${API_URL}/api/courses/module`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`, // Add token here
+
     },
     body: JSON.stringify({
-      courseId,
+      course_id,
       title,
       description,
+      duration_hours
     }),
   });
 
@@ -70,24 +73,30 @@ export async function createModule(courseId: string, title: string, description:
   }
 
   const newModule = await response.json();
-  return newModule;
+  return newModule.module;
 }
+
 // utils/api.ts
-export async function createLesson(moduleId: string, title: string, content: string, content_type: string, duration_minutes: number, order_index: number, is_free_preview: boolean) {
-  const response = await fetch("/api/lessons/create", {
+export async function createLesson(module_id: string, title: string, content: string, content_type: string, duration_minutes: number, video: File | null) {
+  const formData = new FormData(); 
+  formData.append("module_id", module_id);
+  formData.append("title", title);
+  formData.append("content", content);
+  formData.append("content_type", content_type);
+  formData.append("duration_minutes", duration_minutes.toString());
+  
+  // If there's a video file, append it to the FormData
+  if (video) {
+    formData.append("video", video);
+  }
+
+  const response = await fetch(`${API_URL}/api/courses/lesson`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`, // Add token here
+
     },
-    body: JSON.stringify({
-      module_id: moduleId,
-      title,
-      content,
-      content_type,
-      duration_minutes,
-      order_index,
-      is_free_preview,
-    }),
+    body: formData, // Send form data including the video file
   });
 
   if (!response.ok) {
@@ -97,3 +106,4 @@ export async function createLesson(moduleId: string, title: string, content: str
   const newLesson = await response.json();
   return newLesson;
 }
+

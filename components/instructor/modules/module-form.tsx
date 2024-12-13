@@ -1,25 +1,10 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-
-const formSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
-  order_index: z.string().transform((val) => parseInt(val, 10)),
-});
+import { useCourses } from "@/lib/hooks/use-courses";
 
 export function ModuleForm({
   courseId,
@@ -28,69 +13,85 @@ export function ModuleForm({
   courseId: string;
   onSuccess: () => void;
 }) {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      order_index: "1",
-    },
+  const { createModule } = useCourses();
+  
+  // Local state for form inputs
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [durationHours, setDurationHours] = useState(1);
+
+  // Local state for form validation error messages
+  const [errors, setErrors] = useState<{ title?: string; description?: string; durationHours?: string }>({
+    title: "",
+    description: "",
+    durationHours: "",
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    onSuccess();
+  // Handle form submission
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+
+    // Simple validation
+    const newErrors: any = {};
+    if (!title) newErrors.title = "Title is required";
+    if (!description) newErrors.description = "Description is required";
+    if (durationHours < 1) newErrors.durationHours = "Duration must be at least 1 hour";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    try {
+      await createModule(courseId, title, description, durationHours);
+      onSuccess();
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Module Title</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter module title" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+    <div className="space-y-4">
+      <div>
+        <label htmlFor="title" className="block">Module Title</label>
+        <Input
+          id="title"
+          placeholder="Enter module title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full"
         />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Enter module description"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        {errors.title && <p className="text-red-600 text-sm">{errors.title}</p>}
+      </div>
+      
+      <div>
+        <label htmlFor="description" className="block">Description</label>
+        <Textarea
+          id="description"
+          placeholder="Enter module description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="w-full"
         />
-        <FormField
-          control={form.control}
-          name="order_index"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Order</FormLabel>
-              <FormControl>
-                <Input type="number" min="1" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+        {errors.description && <p className="text-red-600 text-sm">{errors.description}</p>}
+      </div>
+
+      <div>
+        <label htmlFor="duration_hours" className="block">Duration (Hours)</label>
+        <Input
+          id="duration_hours"
+          type="number"
+          value={durationHours}
+          onChange={(e) => setDurationHours(parseInt(e.target.value, 10))}
+          min="1"
+          className="w-full"
         />
-        <Button type="submit" className="w-full">
-          Create Module
-        </Button>
-      </form>
-    </Form>
+        {errors.durationHours && <p className="text-red-600 text-sm">{errors.durationHours}</p>}
+      </div>
+
+      <Button type="submit" onClick={onSubmit} className="w-full">
+        Create Module
+      </Button>
+    </div>
   );
 }

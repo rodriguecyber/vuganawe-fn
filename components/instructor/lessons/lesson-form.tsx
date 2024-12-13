@@ -1,5 +1,3 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -20,12 +18,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCourses } from "@/lib/hooks/use-courses";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content_type: z.enum(["text", "video", "audio"]),
   duration_minutes: z.string().transform((val) => parseInt(val, 10)),
   content: z.string().min(1, "Content is required"),
+  video: z.instanceof(File).optional(), // Add file type validation for video
 });
 
 export function LessonForm({
@@ -35,19 +35,26 @@ export function LessonForm({
   moduleId: string;
   onSuccess: () => void;
 }) {
+  const { createLesson } = useCourses();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       content_type: "text",
-      duration_minutes: "30",
+      duration_minutes: 0,
       content: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    onSuccess();
+    const { title, content, content_type, duration_minutes, video } = values;
+    try {
+      await createLesson(moduleId, title, content, content_type, duration_minutes, video || null);
+      onSuccess();
+    } catch (error) {
+      console.error("Error creating lesson:", error);
+    }
   }
 
   return (
@@ -121,6 +128,29 @@ export function LessonForm({
             </FormItem>
           )}
         />
+        {form.watch("content_type") === "video" && (
+          <FormField
+            control={form.control}
+            name="video"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Upload Video</FormLabel>
+                <FormControl>
+                  <Input
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        field.onChange(e.target.files[0]);
+                      }
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <Button type="submit" className="w-full">
           Create Lesson
         </Button>
