@@ -10,8 +10,8 @@ import 'react-toastify/dist/ReactToastify.css';  // Import Toastify styles globa
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Learning Platform',
-  description: 'A modern platform for online learning',
+  title: 'Future Focus E-Learning Platform',
+  description: 'A modern platform for online learning for Future focus students',
 };
 
 export default function RootLayout({

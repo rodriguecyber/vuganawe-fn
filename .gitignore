@@ -3,7 +3,7 @@
 # dependencies
 /node_modules
 /.pnp
-.bolt
+/.bolt/
 .pnp.js
 package-lock.json
 

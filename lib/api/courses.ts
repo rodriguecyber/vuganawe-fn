@@ -27,11 +27,31 @@ export async function fetchLessonsByModuleId(moduleId: string): Promise<Lesson[]
 }
 
 export async function fetchResourcesByLessonId(lessonId: string): Promise<Resource[]> {
-  const response = await fetch(`${API_URL}api/lessons/${lessonId}/resources`);
+  const response = await fetch(`${API_URL}/api/lessons/${lessonId}/resources`);
   if (!response.ok) throw new Error('Failed to fetch resources');
   return response.json();
 }
 // utils/api.ts (or the appropriate file for handling API requests)
+export async function createCourse(formData: FormData) {
+
+  
+
+  const response = await fetch(`${API_URL}/api/courses`, {
+    method: "POST",
+    headers: {
+      // "Content-Type": "multipart/form-data",
+      "Authorization": `Bearer ${localStorage.getItem("token")}`, // Add token here
+    },
+    body:formData,
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to create module");
+  }
+
+  const newModule = await response.json();
+  return newModule;
+}
 export async function createModule(courseId: string, title: string, description: string) {
   const response = await fetch("/api/modules/create", {
     method: "POST",

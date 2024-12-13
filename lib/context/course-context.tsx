@@ -22,6 +22,7 @@ interface CourseState {
 
 interface CourseContextType extends CourseState {
   loadCourses: () => Promise<void>;
+  createCourse: (formData:FormData) => Promise<void>;
   loadCourse: (courseId: string) => Promise<void>;
   loadModules: (courseId: string) => Promise<void>;
   loadLessons: (moduleId: string) => Promise<void>;
@@ -162,6 +163,31 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
       });
     }
   };
+  const createCourse = async (formData: FormData) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      const response =await courseApi.createCourse(formData)
+      if (!response.ok) {
+        throw new Error('Failed to create course');
+      }
+
+      const newCourse = await response.json();
+      dispatch({ type: 'SET_COURSES', payload: [...state.courses, newCourse] });
+      toast({
+        title: "Success",
+        description: "Course created successfully",
+        variant: "default",
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to create course';
+      dispatch({ type: 'SET_ERROR', payload: message });
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    }
+  };
 
   const loadModules = async (courseId: string) => {
     try {
@@ -264,6 +290,7 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
         loadCourses,
         loadCourse,
         loadModules,
+        createCourse,
         loadLessons,
         loadResources,
         updateProgress,

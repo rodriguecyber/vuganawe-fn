@@ -79,7 +79,7 @@ export function CourseList() {
                 </TableCell>
                 <TableCell>0</TableCell>
                 <TableCell>0</TableCell>
-                <TableCell>${course.price}</TableCell>
+                <TableCell>{course.price}</TableCell>
                 <TableCell>
                   <Link href={`/instructor/courses/${course._id}`}>
                     <Button variant="ghost" size="sm">
