@@ -27,6 +27,11 @@ const navigation = [
     href: "/instructor/courses/new",
     icon: Plus,
   },
+  {
+    name: "Assignment",
+    href: "/instructor/courses/new",
+    icon: Plus,
+  },
 ];
 
 export function Sidebar() {

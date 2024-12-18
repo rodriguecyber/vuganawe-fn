@@ -7,7 +7,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus } from 'lucide-react';
 import { LessonList } from "../lessons/lesson-list";
 import { useState } from "react";
 import {
@@ -18,6 +18,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { LessonForm } from "../lessons/lesson-form";
+import { CreateAssignmentForm } from "@/components/assignments/instructor/CreateAssignmentForm";
 
 interface Module {
   _id: string;
@@ -36,6 +37,8 @@ export function ModuleList({
 }) {
   const [activeModule, setActiveModule] = useState<string | null>(null);
   const [isAddLessonOpen, setIsAddLessonOpen] = useState(false);
+  const [isAddAssignmentOpen, setIsAddAssignmentOpen] = useState(false);
+  const [currentModuleId, setCurrentModuleId] = useState<string | null>(null);
 
   return (
     <Accordion
@@ -62,24 +65,44 @@ export function ModuleList({
                 </div>
               </div>
             </AccordionTrigger>
-            {/* Add Lesson Dialog */}
-            <Dialog open={isAddLessonOpen} onOpenChange={setIsAddLessonOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Lesson
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add New Lesson</DialogTitle>
-                </DialogHeader>
-                <LessonForm
-                  moduleId={module._id}
-                  onSuccess={() => setIsAddLessonOpen(false)}
-                />
-              </DialogContent>
-            </Dialog>
+            <div className="flex gap-2">
+              {/* Add Lesson Dialog */}
+              <Dialog open={isAddLessonOpen} onOpenChange={setIsAddLessonOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Lesson
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add New Lesson</DialogTitle>
+                  </DialogHeader>
+                  <LessonForm
+                    moduleId={module._id}
+                    onSuccess={() => setIsAddLessonOpen(false)}
+                  />
+                </DialogContent>
+              </Dialog>
+              {/* Add Assignment Dialog */}
+              <Dialog open={isAddAssignmentOpen} onOpenChange={setIsAddAssignmentOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" onClick={() => setCurrentModuleId(module._id)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Assignment
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add New Assignment</DialogTitle>
+                  </DialogHeader>
+                  <CreateAssignmentForm
+                    moduleId={currentModuleId || ''}
+                    onSuccess={() => setIsAddAssignmentOpen(false)}
+                  />
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
           <AccordionContent>
             {/* Display lessons only if the module is active */}
@@ -94,3 +117,4 @@ export function ModuleList({
     </Accordion>
   );
 }
+
