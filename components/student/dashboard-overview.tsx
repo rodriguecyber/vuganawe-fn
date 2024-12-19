@@ -3,8 +3,63 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Clock, Award, BookMarked } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import axios from "axios";
+import { useEffect, useState } from "react";
+
+export interface IEnrollment {
+  user_id: string;
+  course_id: {_id:string,title:string};
+  totalLessons: number;
+  completedLessons: number;
+  lastAccessed: Date;
+  enrolled_at: Date;
+  status: string;
+  completion_date?: Date;
+  progress_percentage: number;
+}
 
 export function DashboardOverview() {
+  const [dashboard, setDashboard] = useState<IEnrollment[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchDashboard = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/progress/dashboard', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      // Ensure the response data is valid and contains the expected structure
+      if (response.data && Array.isArray(response.data)) {
+        setDashboard(response.data);
+        console.log(response.data);
+      } else {
+        throw new Error("Invalid response data");
+      }
+    } catch (error) {
+      setError("Error fetching dashboard data");
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
+  // Loading state handling
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  // Error state handling
+  if (error) {
+    return <div>{error}</div>;
+  }
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">My Learning Dashboard</h1>
@@ -15,7 +70,7 @@ export function DashboardOverview() {
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4</div>
+            <div className="text-2xl font-bold">{dashboard.length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -24,7 +79,9 @@ export function DashboardOverview() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2</div>
+            <div className="text-2xl font-bold">
+              {dashboard ? dashboard.filter(dash => dash.status === 'active').length : 0}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -33,7 +90,9 @@ export function DashboardOverview() {
             <BookMarked className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1</div>
+            <div className="text-2xl font-bold">
+              {dashboard ? dashboard.filter(dash => dash.status === 'completed').length : 0}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -42,7 +101,9 @@ export function DashboardOverview() {
             <Award className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1</div>
+            <div className="text-2xl font-bold">
+              {dashboard ? dashboard.filter(dash => dash.status === 'completed').length : 0}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -50,34 +111,26 @@ export function DashboardOverview() {
       <div className="space-y-6">
         <h2 className="text-xl font-semibold">Current Progress</h2>
         <div className="grid gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Web Development Fundamentals</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Progress</span>
-                  <span>65%</span>
-                </div>
-                <Progress value={65} />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Advanced JavaScript</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Progress</span>
-                  <span>40%</span>
-                </div>
-                <Progress value={40} />
-              </div>
-            </CardContent>
-          </Card>
+          {dashboard && dashboard.length > 0 ? (
+            dashboard.map((dash) => (
+              <Card key={dash.course_id._id}>
+                <CardHeader>
+                  <CardTitle>{dash.course_id.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Progress</span>
+                      <span>{dash.progress_percentage}%</span>
+                    </div>
+                    <Progress value={dash.progress_percentage} />
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <div>No dashboard data available</div>
+          )}
         </div>
       </div>
     </div>

@@ -3,7 +3,12 @@ import { Course, Module, Lesson, Resource } from '../types/course';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export async function fetchCourses(): Promise<Course[]> {
-  const response = await fetch(`${API_URL}/api/courses`);
+const response = await fetch(`${API_URL}/api/courses`,{
+  headers: {
+    "Authorization": `Bearer ${localStorage.getItem("token")}`,
+
+         },
+});
   if (!response.ok) throw new Error('Failed to fetch courses');
   return response.json();
 }

@@ -92,6 +92,12 @@ export function ModuleList({
                     Add Assignment
                   </Button>
                 </DialogTrigger>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" onClick={() => window.location.href=`/instructor/assignments/${module._id}`}>
+                    <Plus className="h-4 w-4 mr-2" />
+                     Assignment
+                  </Button>
+                </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Add New Assignment</DialogTitle>
