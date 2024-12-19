@@ -1,7 +1,7 @@
-"use client";
-
+'use client'
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import axios from "axios"; // Import axios
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, AlertCircle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -28,43 +28,37 @@ interface Submission {
 }
 
 export default function AssignmentPage() {
-  const params = useParams();
+  const { id } = useParams(); // Get the moduleId from the URL params
   const { toast } = useToast();
   const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Function to fetch assignment and submission data
   const fetchData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const [assignmentRes, submissionRes] = await Promise.all([
-        fetch(`http://localhost:5000/api/assignments/${params.id}`, {
-          headers: { 
-      "Authorization": `Bearer ${localStorage.getItem("token")}`, // Add token here
 
-           },
-        }),
-        fetch(`http://localhost:5000/api/submissions/${params.id}`, {
-          headers: { 
-      "Authorization": `Bearer ${localStorage.getItem("token")}`, // Add token here
+      // Fetch assignment data using the moduleId
+      const assignmentRes = await axios.get(`http://localhost:5000/api/assignments/${id}`, {
+        headers: { "Authorization": `Bearer ${token}` },
+      });
 
-           },
-        }),
-      ]);
+      setAssignment(assignmentRes.data);
 
-      if (!assignmentRes.ok) throw new Error("Failed to fetch assignment");
+      // Fetch the submission data using the assignment ID
+      const submissionRes = await axios.get(`http://localhost:5000/api/submissions/${assignmentRes.data._id}`, {
+        headers: { "Authorization": `Bearer ${token}` },
+      });
 
-      const assignmentData = await assignmentRes.json();
-      setAssignment(assignmentData);
-
-      if (submissionRes.ok) {
-        const submissionData = await submissionRes.json();
-        setSubmission(submissionData);
+      // Assuming the response might be an array of submissions, and we want the first one
+      if (submissionRes.data ) {
+        setSubmission(submissionRes.data);
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to load assignment",
+        description: "Failed to load assignment or submission",
         variant: "destructive",
       });
     } finally {
@@ -74,21 +68,18 @@ export default function AssignmentPage() {
 
   useEffect(() => {
     fetchData();
-  }, [params.id]);
+  }, [id]); // Fetch again when moduleId changes
 
-  const handleSubmissionSuccess = async () => {
+  // Function to handle successful submission
+  const handleSubmissionSuccess = async (assignment_id: string) => {
     try {
       const token = localStorage.getItem("token");
-      const submissionRes = await fetch(`http://localhost:5000/api/submissions/assignment/${params.id}`, {
-        headers: { 
-      "Authorization": `Bearer ${localStorage.getItem("token")}`, // Add token here
-
-         },
+      const submissionRes = await axios.get(`http://localhost:5000/api/submissions/${assignment_id}`, {
+        headers: { "Authorization": `Bearer ${token}` },
       });
 
-      if (submissionRes.ok) {
-        const submissionData = await submissionRes.json();
-        setSubmission(submissionData);
+      if (submissionRes.data && submissionRes.data.length > 0) {
+        setSubmission(submissionRes.data[0]);
       }
     } catch (error) {
       console.error("Error fetching updated submission:", error);
@@ -160,7 +151,7 @@ export default function AssignmentPage() {
                 <SubmissionForm
                   assignmentId={assignment._id}
                   requiresFile={assignment.requires_file}
-                  onSubmit={handleSubmissionSuccess}
+                  onSubmit={() => handleSubmissionSuccess(assignment._id)}
                 />
               )}
             </CardContent>
@@ -188,4 +179,3 @@ export default function AssignmentPage() {
     </div>
   );
 }
-
