@@ -27,7 +27,7 @@ export async function fetchCourses(): Promise<Course[]> {
     return response.data;
   } catch (error) {
     showToast('Failed to fetch courses', 'error');
-    throw error;
+    return  [];
   }
 }
 
@@ -36,8 +36,10 @@ export async function fetchCourseById(courseId: string): Promise<Course> {
     const response = await api.get(`/api/courses/${courseId}`);
     return response.data;
   } catch (error) {
-    showToast('Failed to fetch course', 'error');
-    throw error;
+    showToast('Failed to fetch course','error');
+    //@ts-expect-error err
+    return {}
+     
   }
 }
 
@@ -47,7 +49,7 @@ export async function fetchModulesByCourseId(courseId: string): Promise<Module[]
     return response.data;
   } catch (error) {
     showToast('Failed to fetch modules', 'error');
-    throw error;
+   return []
   }
 }
 
@@ -57,7 +59,7 @@ export async function fetchLessonsByModuleId(moduleId: string): Promise<Lesson[]
     return response.data;
   } catch (error) {
     showToast('Failed to fetch lessons', 'error');
-    throw error;
+    return []
   }
 }
 
@@ -67,7 +69,7 @@ export async function fetchResourcesByLessonId(lessonId: string): Promise<Resour
     return response.data;
   } catch (error) {
     showToast('Failed to fetch resources', 'error');
-    throw error;
+   return []
   }
 }
 
@@ -78,7 +80,7 @@ export async function createCourse(formData: FormData) {
     return response.data;
   } catch (error) {
     showToast('Failed to create course', 'error');
-    throw error;
+    return []
   }
 }
 
