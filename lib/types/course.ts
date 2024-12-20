@@ -6,7 +6,7 @@ export interface Course {
   price: number;
   thumbnail: string;
   difficulty_level: 'beginner' | 'intermediate' | 'advanced';
-  status: 'draft' | 'published' | 'archived';
+  students: number
   prerequisites: string[];
   start_date: Date;
   end_date: Date;

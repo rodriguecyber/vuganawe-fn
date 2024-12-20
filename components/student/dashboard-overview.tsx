@@ -19,13 +19,14 @@ export interface IEnrollment {
 }
 
 export function DashboardOverview() {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL 
   const [dashboard, setDashboard] = useState<IEnrollment[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchDashboard = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/progress/dashboard', {
+      const response = await axios.get(`${API_URL}/api/progress/dashboard`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
@@ -34,7 +35,6 @@ export function DashboardOverview() {
       // Ensure the response data is valid and contains the expected structure
       if (response.data && Array.isArray(response.data)) {
         setDashboard(response.data);
-        console.log(response.data);
       } else {
         throw new Error("Invalid response data");
       }
@@ -123,7 +123,7 @@ export function DashboardOverview() {
                       <span>Progress</span>
                       <span>{dash.progress_percentage}%</span>
                     </div>
-                    <Progress value={dash.progress_percentage} />
+                    <Progress color="green" value={dash.progress_percentage} />
                   </div>
                 </CardContent>
               </Card>

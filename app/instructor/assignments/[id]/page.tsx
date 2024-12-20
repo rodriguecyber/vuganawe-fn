@@ -18,6 +18,7 @@ interface Assignment {
 }
 
 export default function InstructorAssignmentPage() {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL 
   const params = useParams();
   const { toast } = useToast();
   const [assignment, setAssignment] = useState<Assignment | null>(null);
@@ -27,7 +28,7 @@ export default function InstructorAssignmentPage() {
     const fetchAssignment = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`http://localhost:5000/api/assignments/${params.id}`, {
+        const response = await fetch(`${API_URL}/api/assignments/${params.id}`, {
           headers: {
       "Authorization": `Bearer ${localStorage.getItem("token")}`,
 

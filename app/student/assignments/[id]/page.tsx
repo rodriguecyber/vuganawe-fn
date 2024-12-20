@@ -28,6 +28,7 @@ interface Submission {
 }
 
 export default function AssignmentPage() {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL 
   const { id } = useParams(); // Get the moduleId from the URL params
   const { toast } = useToast();
   const [assignment, setAssignment] = useState<Assignment | null>(null);
@@ -40,14 +41,14 @@ export default function AssignmentPage() {
       const token = localStorage.getItem("token");
 
       // Fetch assignment data using the moduleId
-      const assignmentRes = await axios.get(`http://localhost:5000/api/assignments/${id}`, {
+      const assignmentRes = await axios.get(`${API_URL}/api/assignments/${id}`, {
         headers: { "Authorization": `Bearer ${token}` },
       });
 
       setAssignment(assignmentRes.data);
 
       // Fetch the submission data using the assignment ID
-      const submissionRes = await axios.get(`http://localhost:5000/api/submissions/${assignmentRes.data._id}`, {
+      const submissionRes = await axios.get(`${API_URL}/api/submissions/${assignmentRes.data._id}`, {
         headers: { "Authorization": `Bearer ${token}` },
       });
 
@@ -74,7 +75,7 @@ export default function AssignmentPage() {
   const handleSubmissionSuccess = async (assignment_id: string) => {
     try {
       const token = localStorage.getItem("token");
-      const submissionRes = await axios.get(`http://localhost:5000/api/submissions/${assignment_id}`, {
+      const submissionRes = await axios.get(`${API_URL}/api/submissions/${assignment_id}`, {
         headers: { "Authorization": `Bearer ${token}` },
       });
 

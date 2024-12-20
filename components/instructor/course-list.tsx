@@ -57,9 +57,8 @@ export function CourseList() {
           <TableHeader>
             <TableRow>
               <TableHead>Title</TableHead>
-              <TableHead>Status</TableHead>
               <TableHead>Students</TableHead>
-              <TableHead>Modules</TableHead>
+              {/* <TableHead>Modules</TableHead> */}
               <TableHead>Price</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -68,17 +67,10 @@ export function CourseList() {
             {courses.map((course) => (
               <TableRow key={course._id}>
                 <TableCell className="font-medium">{course.title}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={
-                      course.status === "published" ? "default" : "secondary"
-                    }
-                  >
-                    {course.status}
-                  </Badge>
-                </TableCell>
-                <TableCell>0</TableCell>
-                <TableCell>0</TableCell>
+                {/* <TableCell>
+                </TableCell> */}
+                <TableCell>{course.students||0}</TableCell>
+                {/* <TableCell></TableCell> */}
                 <TableCell>{course.price}</TableCell>
                 <TableCell>
                   <Link href={`/instructor/courses/${course._id}`}>

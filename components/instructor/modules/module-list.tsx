@@ -93,9 +93,9 @@ export function ModuleList({
                   </Button>
                 </DialogTrigger>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" onClick={() => window.location.href=`/instructor/assignments/${module._id}`}>
-                    <Plus className="h-4 w-4 mr-2" />
-                     Assignment
+                  <Button variant="outline" style={{ borderColor: 'green', color: 'blue' }} size="sm" onClick={() => window.location.href=`/instructor/assignments/${module._id}`}>
+                    
+                     View Assignment
                   </Button>
                 </DialogTrigger>
                 <DialogContent>

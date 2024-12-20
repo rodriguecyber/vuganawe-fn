@@ -1,9 +1,9 @@
 import { UserProgress, CourseProgress } from '../types/progress';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function fetchUserProgress(userId: string): Promise<UserProgress[]> {
-  const response = await fetch(`${API_URL}/progress`,{
+  const response = await fetch(`${API_URL}/api/progress`,{
     headers: {
       'Content-Type': 'application/json',
       "Authorization": `Bearer ${localStorage.getItem("token")}`, // Add token here
@@ -14,7 +14,7 @@ export async function fetchUserProgress(userId: string): Promise<UserProgress[]>
 }
 
 export async function fetchCourseProgress(courseId: string): Promise<CourseProgress> {
-  const response = await fetch(`${API_URL}/enrollement/${courseId}`,{
+  const response = await fetch(`${API_URL}/api/enrollement/${courseId}`,{
     headers: {
       'Content-Type': 'application/json',
       "Authorization": `Bearer ${localStorage.getItem("token")}`, // Add token here
@@ -29,7 +29,7 @@ export async function updateLessonProgress(
   lessonId: string,
   data: Partial<UserProgress>
 ): Promise<UserProgress> {
-  const response = await fetch(`${API_URL}/progress/lessons/${lessonId}`, {
+  const response = await fetch(`${API_URL}/api/progress/lessons/${lessonId}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
