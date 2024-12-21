@@ -119,9 +119,9 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
       dispatch({ type: 'SET_LOADING', payload: true });
       const courses = await courseApi.fetchCourses();
       dispatch({ type: 'SET_COURSES', payload: courses });
-
+       
       // Load progress for each course
-      if (user) {
+      // if (user) {
         await Promise.all(
           courses.map(async (course) => {
             const progress = await progressApi.fetchCourseProgress(course._id);
@@ -131,8 +131,9 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
             });
           })
         );
-      }
+      // }
     } catch (error) {
+      console.log('kkk')
       const message = error instanceof Error ? error.message : 'Failed to load courses';
       dispatch({ type: 'SET_ERROR', payload: message });
       toast({
@@ -148,6 +149,7 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
       dispatch({ type: 'SET_LOADING', payload: true });
       const course = await courseApi.fetchCourseById(courseId);
       dispatch({ type: 'SET_CURRENT_COURSE', payload: course });
+
       // if (user) {
         const progress = await progressApi.fetchCourseProgress(courseId);
         dispatch({
@@ -156,6 +158,7 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
         });
       // }
     } catch (error) {
+
       const message = error instanceof Error ? error.message : 'Failed to load course';
       dispatch({ type: 'SET_ERROR', payload: message });
       toast({

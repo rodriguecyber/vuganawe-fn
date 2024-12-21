@@ -1,14 +1,18 @@
+'use client'
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Course, Module, Lesson, Resource } from '../types/course';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL 
-
+var token
 // Axios instance for API requests
+  if (typeof window !== 'undefined') {
+    token = localStorage.getItem('token')
+  }
 const api = axios.create({
   baseURL: API_URL,
   headers: {
-    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+    'Authorization': `Bearer ${token}`,
   },
 });
 

@@ -60,12 +60,12 @@ export function CourseList() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Progress</span>
-                    <span>{courseProgress.progress_percentage}%</span>
+                    <span >{courseProgress.progress_percentage}%</span>
                   </div>
-                  <Progress value={courseProgress.progress_percentage} />
+                  <Progress className="bg-blue-200" value={courseProgress.progress_percentage} />
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  {courseProgress.completedLessons} of {courseProgress.totalLessons} lessons completed
+                  {courseProgress.completedLessons} of {courseProgress.totalLesson} lessons completed
                 </div>
                 <Link href={`/student/courses/${course._id}`}>
                   <Button className="w-full">
