@@ -184,7 +184,7 @@ export function CourseView({ courseId }: { courseId: string }) {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">Course Content</h2>
           <Accordion type="single" collapsible className="w-full">
-            {modules.map((module) => (
+            {modules.sort((a, b) => a.order_index - b.order_index).map((module) => (
               <AccordionItem key={module._id} value={module._id}>
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center gap-2">
@@ -194,7 +194,7 @@ export function CourseView({ courseId }: { courseId: string }) {
                 <AccordionContent>
                   <div className="space-y-2 pt-2">
                     {(lessons[module._id] || []).map((lesson) => {
-                      const progress = lessonProgress[lesson._id] || {};  // Default to empty object if no progress data
+                      const progress = lessonProgress[lesson._id] || {};  
                       return (
                         <button
                           key={lesson._id}
