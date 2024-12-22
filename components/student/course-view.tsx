@@ -193,7 +193,7 @@ export function CourseView({ courseId }: { courseId: string }) {
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-2 pt-2">
-                    {(lessons[module._id] || []).map((lesson) => {
+                    {(lessons[module._id] || []).sort((a, b) => a.order_index - b.order_index).map((lesson) => {
                       const progress = lessonProgress[lesson._id] || {};  
                       return (
                         <button
