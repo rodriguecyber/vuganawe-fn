@@ -17,5 +17,5 @@ export interface CourseProgress {
   enrolled_at: Date;
   status: string
   completion_date?: Date;
-  progress_percentage: number;
+  progress_percentage: number |0;
 }

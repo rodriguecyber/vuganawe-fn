@@ -18,13 +18,14 @@ export function CourseView({ courseId }: { courseId: string }) {
   const [activeLesson, setActiveLesson] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  
   const {
     currentCourse,
-    modules,
-    lessons,
-    resources,
-    progress,
-    lessonProgress,
+    modules ,  
+    lessons , 
+    resources , 
+    progress ,
+    lessonProgress ,
     loadCourse,
     loadModules,
     loadLessons,
@@ -64,8 +65,7 @@ export function CourseView({ courseId }: { courseId: string }) {
   };
 
   const renderVideoPlayer = (videoUrl: string) => {
-    // Check if it's a direct video URL (e.g., .mp4)
-    if (videoUrl.endsWith(".mp4")) {
+    if (videoUrl && videoUrl.endsWith(".mp4")) {
       return (
         <video
           ref={videoRef}
@@ -80,7 +80,6 @@ export function CourseView({ courseId }: { courseId: string }) {
       );
     }
 
-    // Otherwise, treat the URL as an external embed (like from Pexels, YouTube)
     return (
       <iframe
         className="w-full h-full rounded-lg"
@@ -116,7 +115,7 @@ export function CourseView({ courseId }: { courseId: string }) {
   }
 
   const courseProgress = progress[courseId];
-   
+
   return (
     <div className="space-y-6">
       <div>
@@ -125,9 +124,9 @@ export function CourseView({ courseId }: { courseId: string }) {
           <div className="mt-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span>Overall Progress</span>
-              <span>{courseProgress.progress_percentage}%</span>
+              <span>{courseProgress.progress_percentage||0}%</span>
             </div>
-            <Progress value={courseProgress.progress_percentage} />
+            <Progress value={courseProgress.progress_percentage || 0} />
           </div>
         )}
       </div>
@@ -148,7 +147,7 @@ export function CourseView({ courseId }: { courseId: string }) {
                 ) : (
                   <PlayCircle className="h-16 w-16 text-white opacity-50" />
                 )}
-                {/* Play/Pause Button */}
+
                 {modules
                   .flatMap((module) => module.lessons)
                   .find((lesson) => lesson._id === activeLesson)?.video_url && (
@@ -195,9 +194,7 @@ export function CourseView({ courseId }: { courseId: string }) {
                 <AccordionContent>
                   <div className="space-y-2 pt-2">
                     {(lessons[module._id] || []).map((lesson) => {
-                      const progress = lessonProgress[lesson._id];
-                    
-
+                      const progress = lessonProgress[lesson._id] || {};  // Default to empty object if no progress data
                       return (
                         <button
                           key={lesson._id}
@@ -223,11 +220,10 @@ export function CourseView({ courseId }: { courseId: string }) {
                           <div className="flex-1 text-left">
                             <div>{lesson.title}</div>
                             <div className="text-xs text-muted-foreground">
-                              {lesson.duration_minutes} mins
+                              {lesson.duration_minutes ||0} mins
                             </div>
                           </div>
 
-                          {/* Check if lesson is completed */}
                           {progress?.is_completed && (
                             <CheckCircle2 className="h-4 w-4 text-green-500" />
                           )}
@@ -240,7 +236,7 @@ export function CourseView({ courseId }: { courseId: string }) {
             ))}
           </Accordion>
 
-          {activeLesson && resources[activeLesson] && (
+          {activeLesson && resources[activeLesson] && resources[activeLesson].length > 0 && (
             <div className="space-y-4">
               <h3 className="font-semibold">Resources</h3>
               <div className="space-y-2">

@@ -32,7 +32,6 @@ export function DashboardOverview() {
         },
       });
 
-      // Ensure the response data is valid and contains the expected structure
       if (response.data && Array.isArray(response.data)) {
         setDashboard(response.data);
       } else {
@@ -40,7 +39,6 @@ export function DashboardOverview() {
       }
     } catch (error) {
       setError("Error fetching dashboard data");
-      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -123,7 +121,7 @@ export function DashboardOverview() {
                       <span>Progress</span>
                       <span>{dash.progress_percentage}%</span>
                     </div>
-                    <Progress color="green" value={dash.progress_percentage} />
+                    <Progress color="green" value={dash.progress_percentage || 0 } />
                   </div>
                 </CardContent>
               </Card>

@@ -5,16 +5,6 @@ import { Course, Module, Lesson, Resource } from '../types/course';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL 
 var token
-// Axios instance for API requests
-  if (typeof window !== 'undefined') {
-    token = localStorage.getItem('token')
-  }
-const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Authorization': `Bearer ${token}`,
-  },
-});
 
 // Show toast notifications for success or error
 const showToast = (message: string, type: "success" | "error") => {
@@ -42,7 +32,7 @@ export async function fetchCourses(): Promise<Course[]> {
 
 export async function fetchCourseById(courseId: string): Promise<Course> {
   try {
-    const response = await api.get(`${API_URL}/api/courses/${courseId}`,{
+    const response = await axios.get(`${API_URL}/api/courses/${courseId}`,{
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
       },
@@ -58,7 +48,7 @@ export async function fetchCourseById(courseId: string): Promise<Course> {
 
 export async function fetchModulesByCourseId(courseId: string): Promise<Module[]> {
   try {
-    const response = await api.get(`${API_URL}/api/courses/${courseId}/modules`);
+    const response = await axios.get(`${API_URL}/api/courses/${courseId}/modules`);
     return response.data;
   } catch (error) {
     showToast('Failed to fetch modules', 'error');
@@ -69,7 +59,7 @@ export async function fetchModulesByCourseId(courseId: string): Promise<Module[]
 
 export async function fetchLessonsByModuleId(moduleId: string): Promise<Lesson[]> {
   try {
-    const response = await api.get(`${API_URL}/api/courses/modules/${moduleId}/lessons`,{
+    const response = await axios.get(`${API_URL}/api/courses/modules/${moduleId}/lessons`,{
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
       },
@@ -84,7 +74,7 @@ export async function fetchLessonsByModuleId(moduleId: string): Promise<Lesson[]
 
 export async function fetchResourcesByLessonId(lessonId: string): Promise<Resource[]> {
   try {
-    const response = await api.get(`${API_URL}/api/lessons/${lessonId}/resources`,{
+    const response = await axios.get(`${API_URL}/api/lessons/${lessonId}/resources`,{
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
       },
@@ -99,7 +89,7 @@ export async function fetchResourcesByLessonId(lessonId: string): Promise<Resour
 
 export async function createCourse(formData: FormData) {
   try {
-    const response = await api.post(`${API_URL}/api/courses`, formData,{
+    const response = await axios.post(`${API_URL}/api/courses`, formData,{
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
       },
@@ -115,7 +105,7 @@ export async function createCourse(formData: FormData) {
 
 export async function createModule(course_id: string, title: string, description: string, duration_hours: number) {
   try {
-    const response = await api.post(`${API_URL}/api/courses/module`, {
+    const response = await axios.post(`${API_URL}/api/courses/module`, {
       course_id,
       title,
       description,
@@ -146,7 +136,7 @@ export async function createLesson(module_id: string, title: string, content: st
       formData.append("video", video);
     }
 
-    const response = await api.post(`${API_URL}/api/courses/lesson`, formData,{
+    const response = await axios.post(`${API_URL}/api/courses/lesson`, formData,{
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
       },
