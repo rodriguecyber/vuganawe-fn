@@ -9,23 +9,30 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { CheckCircle2, PlayCircle, FileText, Download, PauseCircle } from "lucide-react";
+import { CheckCircle2, PlayCircle, FileText, Download, PauseCircle, Settings } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { useCourses } from "@/lib/hooks/use-courses";
 import { Card } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function CourseView({ courseId }: { courseId: string }) {
   const [activeLesson, setActiveLesson] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [videoQuality, setVideoQuality] = useState<string>("auto");
   const videoRef = useRef<HTMLVideoElement | null>(null);
   
   const {
     currentCourse,
-    modules ,  
-    lessons , 
-    resources , 
-    progress ,
-    lessonProgress ,
+    modules,
+    lessons,
+    resources,
+    progress,
+    lessonProgress,
     loadCourse,
     loadModules,
     loadLessons,
@@ -50,6 +57,10 @@ export function CourseView({ courseId }: { courseId: string }) {
   useEffect(() => {
     if (activeLesson) {
       loadResources(activeLesson);
+      const savedProgress = localStorage.getItem(`videoProgress_${activeLesson}`);
+      if (savedProgress && videoRef.current) {
+        videoRef.current.currentTime = parseFloat(savedProgress);
+      }
     }
   }, [activeLesson]);
 
@@ -64,6 +75,29 @@ export function CourseView({ courseId }: { courseId: string }) {
     }
   };
 
+  const handleVideoProgress = () => {
+    if (videoRef.current && activeLesson) {
+      const progress = videoRef.current.currentTime / videoRef.current.duration;
+      localStorage.setItem(`videoProgress_${activeLesson}`, videoRef.current.currentTime.toString());
+      
+      if (progress >= 0.9) { // Consider video watched when 90% complete
+        updateProgress(activeLesson, {
+          is_completed: true,
+          last_accessed: new Date(),
+        });
+      }
+    }
+  };
+
+  const handleVideoEnded = () => {
+    if (activeLesson) {
+      updateProgress(activeLesson, {
+        is_completed: true,
+        last_accessed: new Date(),
+      });
+    }
+  };
+
   const renderVideoPlayer = (videoUrl: string) => {
     if (videoUrl && videoUrl.endsWith(".mp4")) {
       return (
@@ -71,9 +105,11 @@ export function CourseView({ courseId }: { courseId: string }) {
           ref={videoRef}
           controls
           className="w-full h-full object-cover"
-          src={videoUrl}
+          src={`${videoUrl}#quality=${videoQuality}`}
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
+          onTimeUpdate={handleVideoProgress}
+          onEnded={handleVideoEnded}
         >
           Your browser does not support the video tag.
         </video>
@@ -89,6 +125,18 @@ export function CourseView({ courseId }: { courseId: string }) {
         allowFullScreen
       />
     );
+  };
+
+  const handleQualityChange = (quality: string) => {
+    setVideoQuality(quality);
+    if (videoRef.current) {
+      const currentTime = videoRef.current.currentTime;
+      videoRef.current.load();
+      videoRef.current.currentTime = currentTime;
+      if (isPlaying) {
+        videoRef.current.play();
+      }
+    }
   };
 
   if (isLoading || !currentCourse) {
@@ -151,16 +199,39 @@ export function CourseView({ courseId }: { courseId: string }) {
                 {modules
                   .flatMap((module) => module.lessons)
                   .find((lesson) => lesson._id === activeLesson)?.video_url && (
-                  <button
-                    onClick={handlePlayPause}
-                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 text-white opacity-75 hover:opacity-100 transition-opacity"
-                  >
-                    {isPlaying ? (
-                      <PauseCircle className="h-16 w-16" />
-                    ) : (
-                      <PlayCircle className="h-16 w-16" />
-                    )}
-                  </button>
+                  <>
+                    <button
+                      onClick={handlePlayPause}
+                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 text-white opacity-75 hover:opacity-100 transition-opacity"
+                    >
+                      {isPlaying ? (
+                        <PauseCircle className="h-16 w-16" />
+                      ) : (
+                        <PlayCircle className="h-16 w-16" />
+                      )}
+                    </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="absolute bottom-4 right-4">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem onSelect={() => handleQualityChange("auto")}>
+                          Auto
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => handleQualityChange("high")}>
+                          High
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => handleQualityChange("medium")}>
+                          Medium
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => handleQualityChange("low")}>
+                          Low
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </>
                 )}
               </div>
               <h2 className="text-xl font-semibold">
@@ -200,12 +271,6 @@ export function CourseView({ courseId }: { courseId: string }) {
                           key={lesson._id}
                           onClick={() => {
                             setActiveLesson(lesson._id);
-                            if (!progress?.is_completed) {
-                              updateProgress(lesson._id, {
-                                is_completed: true,
-                                last_accessed: new Date(),
-                              });
-                            }
                           }}
                           className={cn(
                             "flex items-center gap-3 w-full rounded-lg p-2 text-sm transition-colors hover:bg-gray-100",
@@ -259,3 +324,4 @@ export function CourseView({ courseId }: { courseId: string }) {
     </div>
   );
 }
+
