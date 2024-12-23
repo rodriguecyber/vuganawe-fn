@@ -74,7 +74,7 @@ export async function fetchLessonsByModuleId(moduleId: string): Promise<Lesson[]
 
 export async function fetchResourcesByLessonId(lessonId: string): Promise<Resource[]> {
   try {
-    const response = await axios.get(`${API_URL}/api/lessons/${lessonId}/resources`,{
+    const response = await axios.get(`${API_URL}/api/resources/${lessonId}`,{
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
       },

@@ -9,7 +9,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { CheckCircle2, PlayCircle, FileText, Download, PauseCircle, Settings } from 'lucide-react';
+import { CheckCircle2, PlayCircle, FileText, Download, PauseCircle, Settings, Volume2, VolumeX } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { useCourses } from "@/lib/hooks/use-courses";
 import { Card } from "@/components/ui/card";
@@ -19,12 +19,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Slider } from "@/components/ui/slider";
 
 export function CourseView({ courseId }: { courseId: string }) {
   const [activeLesson, setActiveLesson] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [videoQuality, setVideoQuality] = useState<string>("auto");
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
+  const [watchedDuration, setWatchedDuration] = useState(0);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const progressBarRef = useRef<HTMLDivElement | null>(null);
   
   const {
     currentCourse,
@@ -58,8 +65,17 @@ export function CourseView({ courseId }: { courseId: string }) {
     if (activeLesson) {
       loadResources(activeLesson);
       const savedProgress = localStorage.getItem(`videoProgress_${activeLesson}`);
-      if (savedProgress && videoRef.current) {
-        videoRef.current.currentTime = parseFloat(savedProgress);
+      if (savedProgress) {
+        try {
+          const { currentTime, watchedDuration } = JSON.parse(savedProgress);
+          setCurrentTime(currentTime || 0);
+          setWatchedDuration(watchedDuration || 0);
+          if (videoRef.current && isFinite(currentTime)) {
+            videoRef.current.currentTime = currentTime;
+          }
+        } catch (error) {
+          console.error("Error loading saved progress:", error);
+        }
       }
     }
   }, [activeLesson]);
@@ -77,14 +93,30 @@ export function CourseView({ courseId }: { courseId: string }) {
 
   const handleVideoProgress = () => {
     if (videoRef.current && activeLesson) {
-      const progress = videoRef.current.currentTime / videoRef.current.duration;
-      localStorage.setItem(`videoProgress_${activeLesson}`, videoRef.current.currentTime.toString());
-      
-      if (progress >= 0.9) { // Consider video watched when 90% complete
-        updateProgress(activeLesson, {
-          is_completed: true,
-          last_accessed: new Date(),
-        });
+      const newCurrentTime = videoRef.current.currentTime;
+      if (isFinite(newCurrentTime)) {
+        setCurrentTime(newCurrentTime);
+        
+        if (newCurrentTime > watchedDuration) {
+          setWatchedDuration(newCurrentTime);
+        }
+
+        const progress = newCurrentTime / videoRef.current.duration;
+        try {
+          localStorage.setItem(`videoProgress_${activeLesson}`, JSON.stringify({
+            currentTime: newCurrentTime,
+            watchedDuration: Math.max(watchedDuration, newCurrentTime)
+          }));
+        } catch (error) {
+          console.error("Error saving progress:", error);
+        }
+        
+        if (progress >= 0.9) { // Consider video watched when 90% complete
+          updateProgress(activeLesson, {
+            is_completed: true,
+            last_accessed: new Date(),
+          });
+        }
       }
     }
   };
@@ -98,21 +130,126 @@ export function CourseView({ courseId }: { courseId: string }) {
     }
   };
 
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (videoRef.current && progressBarRef.current) {
+      const progressBar = progressBarRef.current;
+      const rect = progressBar.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const clickedTime = (x / rect.width) * duration;
+      
+      if (isFinite(clickedTime) && clickedTime <= watchedDuration) {
+        videoRef.current.currentTime = clickedTime;
+        setCurrentTime(clickedTime);
+      }
+    }
+  };
+
+  const handleVolumeChange = (newVolume: number[]) => {
+    if (videoRef.current) {
+      const volumeValue = newVolume[0];
+      videoRef.current.volume = volumeValue;
+      setVolume(volumeValue);
+      setIsMuted(volumeValue === 0);
+    }
+  };
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      if (isMuted) {
+        videoRef.current.volume = volume;
+        setIsMuted(false);
+      } else {
+        videoRef.current.volume = 0;
+        setIsMuted(true);
+      }
+    }
+  };
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+
   const renderVideoPlayer = (videoUrl: string) => {
     if (videoUrl && videoUrl.endsWith(".mp4")) {
       return (
-        <video
-          ref={videoRef}
-          controls
-          className="w-full h-full object-cover"
-          src={`${videoUrl}#quality=${videoQuality}`}
-          onPlay={() => setIsPlaying(true)}
-          onPause={() => setIsPlaying(false)}
-          onTimeUpdate={handleVideoProgress}
-          onEnded={handleVideoEnded}
-        >
-          Your browser does not support the video tag.
-        </video>
+        <div className="relative">
+          <video
+            ref={videoRef}
+            className="w-full h-full object-cover"
+            src={`${videoUrl}#quality=${videoQuality}`}
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            onTimeUpdate={handleVideoProgress}
+            onLoadedMetadata={() => {
+              if (videoRef.current) {
+                setDuration(videoRef.current.duration);
+              }
+            }}
+            onEnded={handleVideoEnded}
+          >
+            Your browser does not support the video tag.
+          </video>
+          <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-2">
+            <div 
+              ref={progressBarRef}
+              className="h-1 bg-gray-600 cursor-pointer" 
+              onClick={handleSeek}
+            >
+              <div 
+                className="h-full bg-white" 
+                style={{ width: `${(watchedDuration / duration) * 100}%` }}
+              />
+              <div 
+                className="h-full bg-blue-500" 
+                style={{ width: `${(currentTime / duration) * 100}%`, marginTop: '-4px' }}
+              />
+            </div>
+            <div className="flex items-center justify-between mt-2">
+              <div className="flex items-center">
+                <Button variant="ghost" size="icon" onClick={handlePlayPause}>
+                  {isPlaying ? <PauseCircle className="h-6 w-6" /> : <PlayCircle className="h-6 w-6" />}
+                </Button>
+                <Button variant="ghost" size="icon" onClick={toggleMute}>
+                  {isMuted ? <VolumeX className="h-6 w-6" /> : <Volume2 className="h-6 w-6" />}
+                </Button>
+                <Slider
+                  className="w-24"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={[isMuted ? 0 : volume]}
+                  onValueChange={handleVolumeChange}
+                />
+              </div>
+              <div className="text-white text-sm">
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onSelect={() => setVideoQuality("auto")}>
+                    Auto
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => setVideoQuality("high")}>
+                    High
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => setVideoQuality("medium")}>
+                    Medium
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => setVideoQuality("low")}>
+                    Low
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+        </div>
       );
     }
 
@@ -125,18 +262,6 @@ export function CourseView({ courseId }: { courseId: string }) {
         allowFullScreen
       />
     );
-  };
-
-  const handleQualityChange = (quality: string) => {
-    setVideoQuality(quality);
-    if (videoRef.current) {
-      const currentTime = videoRef.current.currentTime;
-      videoRef.current.load();
-      videoRef.current.currentTime = currentTime;
-      if (isPlaying) {
-        videoRef.current.play();
-      }
-    }
   };
 
   if (isLoading || !currentCourse) {
@@ -194,44 +319,6 @@ export function CourseView({ courseId }: { courseId: string }) {
                   )
                 ) : (
                   <PlayCircle className="h-16 w-16 text-white opacity-50" />
-                )}
-
-                {modules
-                  .flatMap((module) => module.lessons)
-                  .find((lesson) => lesson._id === activeLesson)?.video_url && (
-                  <>
-                    <button
-                      onClick={handlePlayPause}
-                      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 text-white opacity-75 hover:opacity-100 transition-opacity"
-                    >
-                      {isPlaying ? (
-                        <PauseCircle className="h-16 w-16" />
-                      ) : (
-                        <PlayCircle className="h-16 w-16" />
-                      )}
-                    </button>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="absolute bottom-4 right-4">
-                          <Settings className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem onSelect={() => handleQualityChange("auto")}>
-                          Auto
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleQualityChange("high")}>
-                          High
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleQualityChange("medium")}>
-                          Medium
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleQualityChange("low")}>
-                          Low
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </>
                 )}
               </div>
               <h2 className="text-xl font-semibold">

@@ -284,7 +284,6 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
       });
     }
   };
-
   const loadResources = async (lessonId: string) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
@@ -298,8 +297,11 @@ export function CourseProvider({ children }: { children: React.ReactNode }) {
         description: message,
         variant: "destructive",
       });
+    } finally {
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
+  
 
   const updateProgress = async (lessonId: string, data: Partial<UserProgress>) => {
     try {
