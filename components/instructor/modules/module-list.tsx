@@ -85,17 +85,18 @@ export function ModuleList({
                 </DialogContent>
               </Dialog>
               {/* Add Assignment Dialog */}
-              <Dialog open={isAddAssignmentOpen} onOpenChange={setIsAddAssignmentOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" onClick={() => setCurrentModuleId(module._id)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Assignment
-                  </Button>
-                </DialogTrigger>
-                <DialogTrigger asChild>
+                
+                {/* <DialogTrigger asChild> */}
                   <Button variant="outline" style={{ borderColor: 'green', color: 'blue' }} size="sm" onClick={() => window.location.href=`/instructor/assignments/${module._id}`}>
                     
                      View Assignment
+                  </Button>
+                {/* </DialogTrigger> */}
+              <Dialog open={isAddAssignmentOpen} onOpenChange={setIsAddAssignmentOpen}>
+              <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" onClick={() => setCurrentModuleId(module._id)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Assignment
                   </Button>
                 </DialogTrigger>
                 <DialogContent>

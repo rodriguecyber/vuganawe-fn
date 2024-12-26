@@ -21,6 +21,7 @@ interface GradeSubmissionFormProps {
 }
 
 export function GradeSubmissionForm({ submissionId, maxPoints, onSuccess }: GradeSubmissionFormProps) {
+const API_URL = process.env.NEXT_PUBLIC_API_URL 
   const { toast } = useToast();
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(gradeSchema),
@@ -29,11 +30,12 @@ export function GradeSubmissionForm({ submissionId, maxPoints, onSuccess }: Grad
   const onSubmit = async (data: z.infer<typeof gradeSchema>) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`/api/submissions/${submissionId}/grade`, {
+      const response = await fetch(`${API_URL}/api/submissions/${submissionId}/grade`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "x-auth-token": token || "",
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          
         },
         body: JSON.stringify(data),
       });

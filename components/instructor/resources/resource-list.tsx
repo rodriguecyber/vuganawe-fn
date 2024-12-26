@@ -15,26 +15,26 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 export function ResourceList({ lessonId }: { lessonId: string }) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL 
+  const API_URL = process.env.NEXT_PUBLIC_API_URL
 
   const { resources, loadResources, isLoading } = useCourses();
   const [lessonResources, setLessonResources] = useState<Resource[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
-        try {
-          const response = await axios.get(`${API_URL}/api/resources/${lessonId}`,{
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            },
-          });   
-         ;
-      setLessonResources(response.data);
+      try {
+        const response = await axios.get(`${API_URL}/api/resources/${lessonId}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        ;
+        setLessonResources(response.data);
 
-        } catch (error) {
-          toast.error('Failed to fetch resources');
-          
-      
+      } catch (error) {
+        toast.error('Failed to fetch resources');
+
+
       }
     };
     fetchData();
@@ -55,7 +55,7 @@ export function ResourceList({ lessonId }: { lessonId: string }) {
 
   return (
     <div className="rounded-md border">
-      {resources[lessonId].length === 0 ? (
+      {lessonResources.length === 0 ? (
         <div className="p-4 text-center text-gray-500">No resources available for this lesson.</div>
       ) : (
         <Table>
@@ -69,7 +69,7 @@ export function ResourceList({ lessonId }: { lessonId: string }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {resources[lessonId].map((resource) => (
+            {lessonResources.map((resource) => (
               <TableRow key={resource._id}>
                 <TableCell className="font-medium">
                   <div className="flex items-center space-x-2">
@@ -78,7 +78,7 @@ export function ResourceList({ lessonId }: { lessonId: string }) {
                   </div>
                 </TableCell>
                 <TableCell className="uppercase text-xs">{resource.resource_type}</TableCell>
-                <TableCell>{resource.file_size} MB</TableCell>
+                <TableCell>{resource.file_size / 1024 / 1024 >= 1024 ? (resource.file_size / 1024 / 1024 / 1024).toPrecision(3) + " Gb" : resource.file_size / 1024 >= 1024 ? (resource.file_size / 1024 / 1024).toPrecision(3) + " Mb" : resource.file_size >= 1024 ? (resource.file_size / 1024).toPrecision(3) + " Kb" : (resource.file_size).toPrecision(3) + " B"}</TableCell>
                 <TableCell>{resource.download_count}</TableCell>
                 <TableCell>
                   <Button variant="ghost" size="sm">
@@ -92,5 +92,5 @@ export function ResourceList({ lessonId }: { lessonId: string }) {
       )}
     </div>
   );
-  
+
 }

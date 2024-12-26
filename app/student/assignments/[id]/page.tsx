@@ -35,24 +35,21 @@ export default function AssignmentPage() {
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Function to fetch assignment and submission data
   const fetchData = async () => {
     try {
       const token = localStorage.getItem("token");
 
-      // Fetch assignment data using the moduleId
       const assignmentRes = await axios.get(`${API_URL}/api/assignments/${id}`, {
         headers: { "Authorization": `Bearer ${token}` },
       });
 
       setAssignment(assignmentRes.data);
 
-      // Fetch the submission data using the assignment ID
       const submissionRes = await axios.get(`${API_URL}/api/submissions/${assignmentRes.data._id}`, {
         headers: { "Authorization": `Bearer ${token}` },
       });
 
-      // Assuming the response might be an array of submissions, and we want the first one
+  
       if (submissionRes.data ) {
         setSubmission(submissionRes.data);
       }
@@ -83,7 +80,7 @@ export default function AssignmentPage() {
         setSubmission(submissionRes.data[0]);
       }
     } catch (error) {
-      console.error("Error fetching updated submission:", error);
+      // console.error("Error fetching updated submission:", error);
     }
   };
 
