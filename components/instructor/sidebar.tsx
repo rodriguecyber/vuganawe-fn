@@ -28,14 +28,14 @@ const navigation = [
     href: "/instructor/courses/new",
     icon: Plus,
   },
-  {
-    name: "Assignment",
-    href: "/instructor/assignments",
-    icon: Plus,
-  },
+  // {
+  //   name: "Assignment",
+  //   href: "/instructor/assignments",
+  //   icon: Plus,
+  // },
 ];
 
-export function Sidebar() {
+export const Sidebar=()=> {
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);

@@ -10,7 +10,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Edit, Plus } from "lucide-react";
 import Link from "next/link";
 import { useCourses } from "@/lib/hooks/use-courses";
@@ -19,14 +18,14 @@ import { Card } from "@/components/ui/card";
 export function CourseList() {
   const { courses, loadCourses, isLoading } = useCourses();
 
-  useEffect(() => {
+  useEffect(()=>{
     loadCourses();
   }, []);
 
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between ">
           <h1 className="text-3xl font-bold">My Courses</h1>
           <div className="w-32 h-10 bg-gray-200 animate-pulse rounded-md" />
         </div>

@@ -16,7 +16,7 @@ import {
 import { useCourses } from "@/lib/hooks/use-courses";
 import { Card } from "@/components/ui/card";
 
-export function CourseDetails({ courseId }: { courseId: string }) {
+export const CourseDetails=({ courseId }: { courseId: string })=> {
   const [activeTab, setActiveTab] = useState("modules");
   const [isAddModuleOpen, setIsAddModuleOpen] = useState(false);
   const { currentCourse, modules, loadCourse, loadModules, isLoading } = useCourses();

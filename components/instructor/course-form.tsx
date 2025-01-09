@@ -15,7 +15,7 @@ const formSchema = z.object({
   thumbnail: z.any().default(null),  // Allow the file to be handled as any (not array)
 });
 
-export function CourseForm() {
+export const CourseForm=()=> {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {

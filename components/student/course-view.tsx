@@ -209,13 +209,13 @@ export function CourseView({ courseId }: { courseId: string }) {
             <div className="flex items-center justify-between mt-2">
               <div className="flex items-center">
                 <Button variant="ghost" size="icon" onClick={handlePlayPause}>
-                  {isPlaying ? <PauseCircle className="h-6 w-6" /> : <PlayCircle className="h-6 w-6" />}
+                  {isPlaying ? <PauseCircle className="h-6 w-6 text-white hover:text-black" /> : <PlayCircle className="h-6 text-white hover:text-black w-6" />}
                 </Button>
                 <Button variant="ghost" size="icon" onClick={toggleMute}>
-                  {isMuted ? <VolumeX className="h-6 w-6" /> : <Volume2 className="h-6 w-6" />}
+                  {isMuted ? <VolumeX className="h-6 w-6 text-white hover:text-black" /> : <Volume2 className="h-6 w-6 text-white hover:text-black" />}
                 </Button>
                 <Slider
-                  className="w-24"
+                  className="w-24  "
                   min={0}
                   max={1}
                   step={0.01}
@@ -229,7 +229,7 @@ export function CourseView({ courseId }: { courseId: string }) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon">
-                    <Settings className="h-4 w-4" />
+                    <Settings className="h-4 w-4 text-white hover:text-black" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>

@@ -33,7 +33,7 @@ const formSchema = z.object({
   file: z.instanceof(File),
 })
 
-export function AddResourceForm({ lessonId, onSuccess }: { lessonId: string, onSuccess: () => void }) {
+export const AddResourceForm = ({ lessonId, onSuccess }: { lessonId: string, onSuccess: () => void })=> {
     const API_URL = process.env.NEXT_PUBLIC_API_URL 
 
   const [isLoading, setIsLoading] = useState(false)
@@ -46,7 +46,7 @@ export function AddResourceForm({ lessonId, onSuccess }: { lessonId: string, onS
     },
   })
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = async(values: z.infer<typeof formSchema>) =>{
     setIsLoading(true)
     const formData = new FormData()
     formData.append('title', values.title)

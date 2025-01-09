@@ -10,7 +10,7 @@ interface IDashboard{
   hours:number
 }
 
-export function DashboardOverview() {
+export const DashboardOverview=()=> {
   const API_URL = process.env.NEXT_PUBLIC_API_URL 
   const [dashboard, setDashboard] = useState<IDashboard>();
   const [loading, setLoading] = useState<boolean>(true);

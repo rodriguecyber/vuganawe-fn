@@ -23,19 +23,9 @@ const navigation = [
     href: "/student/courses",
     icon: BookOpen,
   },
-  {
-    name: "In Progress",
-    href: "/student/in-progress",
-    icon: Clock,
-  },
-  {
-    name: "Completed",
-    href: "/student/completed",
-    icon: BookMarked,
-  },
 ];
 
-export function Sidebar() {
+export const  Sidebar=()=> {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -65,7 +55,7 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile Sidebar */}
+  
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <Button variant="ghost" className="p-0 md:hidden">
@@ -86,7 +76,6 @@ export function Sidebar() {
         </SheetContent>
       </Sheet>
 
-      {/* Desktop Sidebar */}
       <div className="hidden md:flex h-full w-64 flex-col bg-white border-r">
         <div className="flex h-16 items-center gap-2 px-6 border-b">
           <GraduationCap className="h-6 w-6" />
