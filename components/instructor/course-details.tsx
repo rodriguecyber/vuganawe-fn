@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ModuleList } from "./modules/module-list";
 import { ModuleForm } from "./modules/module-form";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import {Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -52,12 +52,7 @@ export const CourseDetails=({ courseId }: { courseId: string })=> {
           <p className="text-muted-foreground">{currentCourse.description}</p>
         </div>
         <Dialog open={isAddModuleOpen} onOpenChange={setIsAddModuleOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Module
-            </Button>
-          </DialogTrigger>
+          
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Add New Module</DialogTitle>
@@ -70,10 +65,21 @@ export const CourseDetails=({ courseId }: { courseId: string })=> {
         </Dialog>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 ">
+        <TabsList className="flex gap-5">
           <TabsTrigger value="modules">Modules</TabsTrigger>
           <TabsTrigger value="settings">Course Settings</TabsTrigger>
+          <TabsTrigger  value="module">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Module
+            </Button>
+          </TabsTrigger >
+          <a href={`/instructor/courses/${courseId}/exam`} className="flex gap-2 bg-black text-white p-2 rounded-sm items-center font-bold">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Exam
+          </a>
+          
         </TabsList>
         <TabsContent value="modules">
           <ModuleList modules={modules} courseId={courseId} />

@@ -1,16 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { PlayCircle } from "lucide-react";
 import Link from "next/link";
 import { useCourses } from "@/lib/hooks/use-courses";
+import CoursePopup from "../course-component";
 
 export function CourseList() {
   const { courses, progress, loadCourses, isLoading } = useCourses();
-
+  const [isPopupOpen, setIsPopupOpen] = useState<boolean>(false);
+  const openPopup = () => setIsPopupOpen(true);
+  const closePopup = () => setIsPopupOpen(false);
   useEffect(() => {
     loadCourses();
   }, []);
@@ -41,7 +44,17 @@ export function CourseList() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">My Courses</h1>
+<div className="flex justify-around items-center">
+<h1 className="text-3xl font-bold">My Courses</h1>
+<button
+        onClick={openPopup}
+        className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-700"
+      >
+        Enroll course
+      </button>
+
+      <CoursePopup isOpen={isPopupOpen} closePopup={closePopup} />
+</div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {courses.map((course) => {
           const courseProgress = progress[course._id] || { progress_percentage: 0, completedLessons: 0, totalLessons: 0 };
@@ -78,6 +91,8 @@ export function CourseList() {
           );
         })}
       </div>
+
+      
     </div>
   );
 }

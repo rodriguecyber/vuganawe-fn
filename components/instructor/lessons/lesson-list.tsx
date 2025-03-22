@@ -80,7 +80,7 @@
                       <DialogHeader>
                         <DialogTitle>Add Resource</DialogTitle>
                         <DialogDescription>
-                          Add a new resource to the lesson "{lesson.title}".
+                          Add a new resource to the lesson &quot;{lesson.title}&quot;.
                         </DialogDescription>
                       </DialogHeader>
                       <AddResourceForm

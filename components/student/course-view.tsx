@@ -74,7 +74,7 @@ export function CourseView({ courseId }: { courseId: string }) {
             videoRef.current.currentTime = currentTime;
           }
         } catch (error) {
-          console.error("Error loading saved progress:", error);
+       throw error
         }
       }
     }
@@ -108,10 +108,10 @@ export function CourseView({ courseId }: { courseId: string }) {
             watchedDuration: Math.max(watchedDuration, newCurrentTime)
           }));
         } catch (error) {
-          console.error("Error saving progress:", error);
+             throw error
         }
         
-        if (progress >= 0.9) { // Consider video watched when 90% complete
+        if (progress >= 0.9) {
           updateProgress(activeLesson, {
             is_completed: true,
             last_accessed: new Date(),

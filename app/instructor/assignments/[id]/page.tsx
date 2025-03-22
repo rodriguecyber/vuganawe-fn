@@ -30,7 +30,7 @@ export default function InstructorAssignmentPage() {
         const token = localStorage.getItem("token");
         const response = await fetch(`${API_URL}/api/assignments/${params.id}`, {
           headers: {
-      "Authorization": `Bearer ${localStorage.getItem("token")}`,
+      "Authorization": `Bearer ${token}`,
 
            },
         });
