@@ -101,8 +101,8 @@ export default function StudentSchedulePage() {
             const searchLower = debouncedSearchQuery.toLowerCase();
             const matchesSearch =
                 !debouncedSearchQuery ||
-                format(new Date(meeting.requested_date), 'MMMM d, yyyy').toLowerCase().includes(searchLower) ||
-                format(new Date(`2000-01-01T${meeting.requested_time}`), 'h:mm a').toLowerCase().includes(searchLower) ||
+                format(new Date(meeting.requestedDate), 'MMMM d, yyyy').toLowerCase().includes(searchLower) ||
+                format(new Date(`2000-01-01T${meeting.requestedTime}`), 'h:mm a').toLowerCase().includes(searchLower) ||
                 meeting.notes?.toLowerCase().includes(searchLower) ||
                 meeting.admin_notes?.toLowerCase().includes(searchLower);
 
@@ -413,11 +413,11 @@ export default function StudentSchedulePage() {
                                                 <div className="space-y-1">
                                                     <div className="flex items-center gap-2">
                                                         <Calendar className="h-4 w-4 text-sky-600" />
-                                                        <span>{format(new Date(meeting.requested_date), 'MMM d, yyyy')}</span>
+                                                        <span>{format(new Date(meeting.requestedDate), 'MMM d, yyyy')}</span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <Clock className="h-4 w-4 text-sky-600" />
-                                                        <span>{format(new Date(`2000-01-01T${meeting.requested_time}`), 'h:mm a')}</span>
+                                                        <span>{format(new Date(`2000-01-01T${meeting.requestedTime}`), 'h:mm a')}</span>
                                                     </div>
                                                 </div>
                                             </TableCell>

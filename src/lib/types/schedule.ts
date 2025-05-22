@@ -4,10 +4,10 @@ export type MeetingStatus = 'pending' | 'approved' | 'rejected' | 'completed' | 
 
 export interface MeetingSchedule {
     _id: string;
-    student_id: string;
+    student: {full_name:string};
     student_name?: string;
-    requested_date: Date;
-    requested_time: string;
+    requestedDate: Date;
+    requestedTime: string;
     duration: number; // in minutes
     platform: MeetingPlatform;
     meeting_link?: string;
