@@ -59,7 +59,6 @@ export default function RegisterPage() {
         title: "Welcome!",
         description: "Your account has been created successfully.",
       });
-      router.push("/student/dashboard");
     } catch (error: any) {
       toast({
         title: "Registration failed",

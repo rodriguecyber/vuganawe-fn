@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { FreeLesson } from '../types/free-course';
 
-const API_URL = 'http://localhost:5000/api/free-courses';
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/free-courses`;
 
 
 export interface FreeCourseResponse {
