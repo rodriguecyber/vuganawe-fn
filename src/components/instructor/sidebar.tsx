@@ -45,11 +45,11 @@ const navigation = [
     href: "/admin/levels/new",
     icon: Plus,
   },
-  // {
-  //   name: "Assignment",
-  //   href: "/admin/assignments",
-  //   icon: Plus,
-  // },
+  {
+    name: "Freee Courses",
+    href: "/admin/free-courses",
+    icon: Plus,
+  },
 ];
 
 export const Sidebar = () => {
