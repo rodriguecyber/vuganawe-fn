@@ -18,7 +18,6 @@ export default function LoginPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
-  const router = useRouter();
   const { toast } = useToast();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -42,7 +41,7 @@ export default function LoginPage() {
         title: "Welcome back!",
         description: "You have successfully logged in.",
       });
-      router.push("/student/dashboard");
+      // router.push("/student/dashboard");
     } catch (error: any) {
       toast({
         title: "Login failed",
