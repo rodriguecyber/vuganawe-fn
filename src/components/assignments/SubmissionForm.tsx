@@ -45,7 +45,7 @@ export function SubmissionForm({ assignmentId, requiresFile, onSubmit }: Submiss
         formData.append("file", data.file);
       }
 
-      const response = await fetch(`http://localhost:5000/api/submissions/${assignmentId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/submissions/${assignmentId}`, {
         method: "POST",
         headers: {
         "Authorization": `Bearer ${localStorage.getItem("token")}`, // Add token here

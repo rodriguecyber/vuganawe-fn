@@ -33,7 +33,7 @@ export function SubmissionsList({ assignmentId, maxPoints }: SubmissionsListProp
   useEffect(() => {
     const fetchSubmissions = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/submissions/${assignmentId}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/submissions/${assignmentId}`, {
           headers: { 
       "Authorization": `Bearer ${localStorage.getItem("token")}`,
 

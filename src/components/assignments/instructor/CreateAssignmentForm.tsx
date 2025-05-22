@@ -35,7 +35,7 @@ export function CreateAssignmentForm({ moduleId, onSuccess }: { moduleId: string
   const onSubmit = async (data: AssignmentFormData) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/assignments", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/assignments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
